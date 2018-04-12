@@ -1,125 +1,19 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const mongoose   = require('mongoose');
-const toDoModel = require('./models/toDo')
+const mongoose = require('mongoose')
+
+const config = require('./config')
+const apiRoutes = require('./routes')
 
 const app = express()
 
 // CONNECT DB
-mongoose.connect('mongodb://localhost:27017/node-rest-api');
+mongoose.connect(config.dbURL);
 
-app.use(bodyParser.urlencoded({
-    extended: true
-}))
-
+app.use(bodyParser.urlencoded({ extended: false}))
 app.use(bodyParser.json())
+app.use('/api', apiRoutes)
 
-const port = process.env.PORT || 8080
-
-const router = express.Router()
-
-router.get('/', function(req, res){
-    res.json({message: 'hooray! API-nya masuk!!'})
+app.listen(config.port, () => {
+    console.log('Magic happens on http://localhost:' + config.port);
 })
-
-router.route('/todo')
-    
-    //CREATE
-    .post(function(req, res){
-        const toDo = new toDoModel()
-
-        toDo.name = req.body.name
-        toDo.completed = req.body.completed
-
-        toDo.save(function(err){
-            if (err) {
-                res.send(err)
-            }
-            res.json({message: 'toDo created!'})
-        })
-
-    })
-
-    //READ
-    .get(function(req, res){
-        toDoModel.find(function(err, todo){
-            if (err) {
-                res.send(err)
-            }
-            res.json(todo)
-        })
-    })
-
-
-router.route('/todo/:terserah')
-
-    //READ DETAIL
-    .get(function(req, res){
-        toDoModel.findById(req.params.terserah, function(err, todo){
-            if (err) {
-                res.send(err)
-            }
-            res.json(todo)
-        })
-    })
-
-    .put(function(req, res){
-        toDoModel.findById(req.params.terserah, function(err, todo){
-            if (err) {
-                res.send(err)
-            }
-
-            todo.name = req.body.name
-            todo.completed = req.body.completed
-
-            todo.save(function(err){
-                if (err) {
-                    res.send(err)
-                }
-                res.json({message: 'toDo update!'})
-            })
-        })
-    })
-
-    .delete(function(req, res){
-        toDoModel.remove({
-            _id: req.params.terserah
-        }, function(err, todo){
-            if (err) {
-                res.send(todo)
-            }
-            res.json({message: 'Succesfully deleted'})
-        })
-    })
-
-
-
-app.use('/api', router)
-
-app.listen(port)
-console.log('Magic happens on port ' + port);
-
-//test
-
-/* const express = require('express')
-
-const app = express()
-
-const router = express.Router()
-router.get('/', function(req, res){
-    res.json({
-        name: 'Daniel',
-        age: 22,
-        address: 'Karbela'
-    })
-})
-
-app.use(router)
-
-app.listen(3000, function(err) {
-    if (err) {
-        console.log('Ada error tuh')
-    }
-
-    console.log("My app started at http://localhost:3000")
-}) */
