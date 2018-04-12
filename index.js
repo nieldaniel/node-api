@@ -23,6 +23,8 @@ router.get('/', function(req, res){
 })
 
 router.route('/todo')
+    
+    //CREATE
     .post(function(req, res){
         const toDo = new toDoModel()
 
@@ -38,6 +40,7 @@ router.route('/todo')
 
     })
 
+    //READ
     .get(function(req, res){
         toDoModel.find(function(err, todo){
             if (err) {
@@ -46,6 +49,50 @@ router.route('/todo')
             res.json(todo)
         })
     })
+
+
+router.route('/todo/:terserah')
+
+    //READ DETAIL
+    .get(function(req, res){
+        toDoModel.findById(req.params.terserah, function(err, todo){
+            if (err) {
+                res.send(err)
+            }
+            res.json(todo)
+        })
+    })
+
+    .put(function(req, res){
+        toDoModel.findById(req.params.terserah, function(err, todo){
+            if (err) {
+                res.send(err)
+            }
+
+            todo.name = req.body.name
+            todo.completed = req.body.completed
+
+            todo.save(function(err){
+                if (err) {
+                    res.send(err)
+                }
+                res.json({message: 'toDo update!'})
+            })
+        })
+    })
+
+    .delete(function(req, res){
+        toDoModel.remove({
+            _id: req.params.terserah
+        }, function(err, todo){
+            if (err) {
+                res.send(todo)
+            }
+            res.json({message: 'Succesfully deleted'})
+        })
+    })
+
+
 
 app.use('/api', router)
 
